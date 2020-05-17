@@ -30,6 +30,17 @@ describe('/books', () => {
         expect(newBookRecord.genre).to.equal('Fantasy');
         expect(newBookRecord.ISBN).to.equal('1-2-3-4-5-6');
       });
+
+      it('cannot create a book if there is no author or title', async () => {
+        const response = await request(app).post('/books').send({});
+        const newBookRecord = await Book.findByPk(response.body.id, {
+          raw: true,
+        });
+
+        expect(response.status).to.equal(400);
+        expect(response.body.errors.length).to.equal(2);
+        expect(newBookRecord).to.equal(null);
+      });
     });
   });
 
