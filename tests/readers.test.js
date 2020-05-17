@@ -51,7 +51,7 @@ describe('/readers', () => {
         expect(response.body.errors.length).to.equal(3);
         expect(newReaderRecord).to.equal(null);
       });
-      it('name cannot be an empty string', async () => {
+      it('errors is name is an empty string', async () => {
         const response = await request(app).post('/readers').send({
           name: '',
           password: '12345667895678',
