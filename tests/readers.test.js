@@ -51,6 +51,20 @@ describe('/readers', () => {
         expect(response.body.errors.length).to.equal(3);
         expect(newReaderRecord).to.equal(null);
       });
+      it('name cannot be an empty string', async () => {
+        const response = await request(app).post('/readers').send({
+          name: '',
+          password: '12345667895678',
+          email: 'email@domain.com',
+        });
+        const newReaderRecord = await Reader.findByPk(response.body.id, {
+          raw: true,
+        });
+
+        expect(response.status).to.equal(400);
+        expect(response.body.errors.length).to.equal(1);
+        expect(newReaderRecord).to.equal(null);
+      });
     });
   });
 
