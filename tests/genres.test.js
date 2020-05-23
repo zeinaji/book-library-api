@@ -6,6 +6,7 @@ const app = require('../src/app');
 
 describe('/genres', () => {
   before(async () => {
+    await Genre.destroy({ where: {} });
     Genre.sequelize.sync();
   });
 
