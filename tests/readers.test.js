@@ -13,6 +13,7 @@ describe('/readers', () => {
         const response = await request(app).post('/readers').send({
           name: 'Elizabeth Bennet',
           email: 'future_ms_darcy@gmail.com',
+          password: 'password',
         });
         const newReaderRecord = await Reader.findByPk(response.body.id, {
           raw: true,
@@ -22,6 +23,55 @@ describe('/readers', () => {
         expect(response.body.name).to.equal('Elizabeth Bennet');
         expect(newReaderRecord.name).to.equal('Elizabeth Bennet');
         expect(newReaderRecord.email).to.equal('future_ms_darcy@gmail.com');
+        expect(newReaderRecord.password).to.equal('password');
+      });
+
+      it('returns an error if no email has been provided', async () => {
+        const response = await request(app).post('/readers').send({
+          name: 'Elizabeth Bennet',
+          password: 'password',
+        });
+
+        expect(response.status).to.equal(400);
+        expect(response.body.errors[0]).to.equal(
+          'An email address is required.'
+        );
+      });
+
+      it('returns an error if no password has been provided', async () => {
+        const response = await request(app).post('/readers').send({
+          name: 'Elizabeth Bennet',
+          email: 'future_ms_darcy@gmail.com',
+        });
+
+        expect(response.status).to.equal(400);
+        expect(response.body.errors[0]).to.equal('A password is required.');
+      });
+
+      it('returns an error if the email is in the wrong format', async () => {
+        const response = await request(app).post('/readers').send({
+          name: 'Elizabeth Bennet',
+          email: 'future_ms_darcy@',
+          password: 'password',
+        });
+
+        expect(response.status).to.equal(400);
+        expect(response.body.errors[0]).to.equal(
+          'Please provide a valid email address.'
+        );
+      });
+
+      it('returns an error if the email is in the wrong format', async () => {
+        const response = await request(app).post('/readers').send({
+          name: 'Elizabeth Bennet',
+          email: 'future_ms_darcy@gmail.com',
+          password: 'pass',
+        });
+
+        expect(response.status).to.equal(400);
+        expect(response.body.errors[0]).to.equal(
+          'Password must be longer than 8 characters.'
+        );
       });
     });
   });
@@ -36,16 +86,24 @@ describe('/readers', () => {
         Reader.create({
           name: 'Elizabeth Bennet',
           email: 'future_ms_darcy@gmail.com',
+          password: 'password1',
         }),
-        Reader.create({ name: 'Arya Stark', email: 'vmorgul@me.com' }),
-        Reader.create({ name: 'Lyra Belacqua', email: 'darknorth123@msn.org' }),
+        Reader.create({
+          name: 'Arya Stark',
+          email: 'vmorgul@me.com',
+          password: 'password2',
+        }),
+        Reader.create({
+          name: 'Lyra Belacqua',
+          email: 'darknorth123@msn.org',
+          password: 'password3',
+        }),
       ]);
     });
 
     describe('GET /readers', () => {
       it('gets all readers records', async () => {
         const response = await request(app).get('/readers');
-
         expect(response.status).to.equal(200);
         expect(response.body.length).to.equal(3);
 
@@ -54,6 +112,7 @@ describe('/readers', () => {
 
           expect(reader.name).to.equal(expected.name);
           expect(reader.email).to.equal(expected.email);
+          expect(response.body.password).to.equal(undefined);
         });
       });
     });
@@ -64,8 +123,11 @@ describe('/readers', () => {
         const response = await request(app).get(`/readers/${reader.id}`);
 
         expect(response.status).to.equal(200);
-        expect(response.body.name).to.equal(reader.name);
-        expect(response.body.email).to.equal(reader.email);
+
+        const expected = await Reader.findByPk(response.body.id);
+        expect(expected.name).to.equal(reader.name);
+        expect(expected.email).to.equal(reader.email);
+        expect(expected.password).to.equal(reader.password);
       });
 
       it('returns a 404 if the reader does not exist', async () => {
