@@ -1,20 +1,19 @@
 module.exports = (sequelize, DataTypes) => {
   const schema = {
-    title: {
+    author: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
       validate: {
         notNull: {
-          msg: 'A title must be provided.',
+          msg: 'The author is required.',
         },
         notEmpty: {
           args: true,
-          msg: 'A title must be provided.',
+          msg: 'The author is required.',
         },
       },
     },
-    ISBN: DataTypes.INTEGER,
   };
-
-  return sequelize.define('Book', schema);
+  return sequelize.define('Author', schema);
 };

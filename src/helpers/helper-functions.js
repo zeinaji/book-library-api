@@ -1,4 +1,4 @@
-const { Reader, Book } = require('../models');
+const { Reader, Book, Author, Genre } = require('../models');
 
 const get404Error = (model) => {
   return { error: `The ${model} could not be found.` };
@@ -8,6 +8,8 @@ const getModel = (model) => {
   const models = {
     book: Book,
     reader: Reader,
+    author: Author,
+    genre: Genre,
   };
   return models[model];
 };
@@ -35,7 +37,8 @@ const createItem = (req, res, model) => {
 
 const getAllItems = (req, res, model) => {
   const Model = getModel(model);
-  Model.findAll().then((items) => {
+  const toInclude = model == 'genre' || model === 'author' ? Book : '';
+  Model.findAll({ include: toInclude }).then((items) => {
     const modifiedItems = items.map((item) => removePassword(item));
     res.status(200).json(modifiedItems);
   });
@@ -44,8 +47,8 @@ const getAllItems = (req, res, model) => {
 const getItemById = (req, res, model) => {
   const { id } = req.params;
   const Model = getModel(model);
-
-  Model.findByPk(id).then((item) => {
+  const toInclude = model === 'book' ? ['Genre', 'Author'] : '';
+  Model.findByPk(id, { include: toInclude }).then((item) => {
     if (!item) {
       res.status(404).json(get404Error(model));
     } else {

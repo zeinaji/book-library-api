@@ -8,6 +8,10 @@ module.exports = (sequelize, DataTypes) => {
         notNull: {
           msg: 'An email address is required.',
         },
+        notEmpty: {
+          args: true,
+          msg: 'An email address is required.',
+        },
         isEmail: {
           args: true,
           msg: 'Please provide a valid email address.',
@@ -19,6 +23,10 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       validate: {
         notNull: {
+          msg: 'A password is required.',
+        },
+        notEmpty: {
+          args: true,
           msg: 'A password is required.',
         },
         len: {
